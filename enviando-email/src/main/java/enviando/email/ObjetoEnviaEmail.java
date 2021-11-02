@@ -33,7 +33,7 @@ public class ObjetoEnviaEmail {
 	}
 	
 	//metodo enviar email
-	public void enviarEmail() throws Exception{		
+	public void enviarEmail(boolean envioHtml) throws Exception{		
 
 		//usando o smtp do Gmail
 		Properties properties = new Properties();
@@ -64,7 +64,15 @@ public class ObjetoEnviaEmail {
 		message.setFrom(new InternetAddress(userName,nomeRemetente));// quem eta enviando o e-mail
 		message.setRecipients(Message.RecipientType.TO, toUser);/*email de destino, passa a lista de email*/
 		message.setSubject(assuntoEmail);/*Assunto*/
-		message.setText(textoEmail);/*mensagem do email*/
+		
+		//condicional para e-mail com html
+		if(envioHtml) {
+			message.setContent(textoEmail, "text/html; charset = utf-8"); //evia se for com html
+		} else {
+			message.setText(textoEmail);/*mensagem do email*/ //envio se não for como html - ou seja, false.
+		}
+		
+		
 		
 		Transport.send(message);/*transporta o email e poderia passar tudo aqui de forma direta, usasei o objeto message*/
 		
