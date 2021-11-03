@@ -39,7 +39,9 @@ public class AppTest {
 									//"Este é um texto para testar o envio do e-mail do Java 02/11/21");
 		
 		//metodo de envio 
-		envEmail.enviarEmail(true); //para usar o html
+		//envEmail.enviarEmail(true); //para usar o html
+		
+		envEmail.enviarEmailAnexo(true);
 		
 		/*Caso o e-mail não esteja sendo enviado colocar um tempo de espera, porem só pode ser usado para teste*/
 		Thread.sleep(3000); //espera 5 segundo antes de matar o processo
