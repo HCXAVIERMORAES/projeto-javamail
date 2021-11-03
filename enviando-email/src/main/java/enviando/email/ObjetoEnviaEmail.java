@@ -3,6 +3,8 @@ package enviando.email;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -128,8 +130,7 @@ public class ObjetoEnviaEmail {
 		 * 2ª parte são os anexo 
 		 * 3ª parte se uni as partes 1 e 2
 		 * */
-		MimeBodyPart corpoEmail = new MimeBodyPart();
-	
+		MimeBodyPart corpoEmail = new MimeBodyPart();	
 		
 		if(envioHtml) {
 			corpoEmail.setContent(textoEmail, "text/html; charset = utf-8"); 
@@ -137,18 +138,46 @@ public class ObjetoEnviaEmail {
 			corpoEmail.setText(textoEmail);
 		}
 		
-		//2ª parte
-		MimeBodyPart anexoEmail = new MimeBodyPart();
+		/**envio de email com varios anexo
+		 * 1ª cria uma lista para receber os PDF do simuladordepdf( ou do BD se houver um sistema, e adiciona-os na lista
+		 * 2ª cria-se um forreach para percorrer os pdf (arquivos)
+		 * 3ª move-se o corpo do email(no passo 3, união de 1 e 2) para cima do for. Assim se adiciona o corpo do email e 
+		 * os varios anexos.
+		 * 4ª onde esta o simuladorDePDF, receberar os arquivos ou seja, fileInputStream 
+		 * 5ª mudar o nome do arquivo com um index na frente.
+		 * Logo para cada arquivo percorre cria o objeto de anexo, cria a fonte de dados, coloca no objeto que recebe esse
+		 * anexo, pega o corpo do e-mail e adiciona o anexo
+		 * */
 		
-		/*Onde é passado o simuladorDePDF(), deve ir o arquivo que se deseja, seja gravado no banco de dados ou outros*/
-		anexoEmail.setDataHandler(new DataHandler(new ByteArrayDataSource(simuladorDePDF(), "application/pdf")));
-		anexoEmail.setFileName("anexoemail.pdf");
+		//criando uma lista de anexo
+		List<FileInputStream> arquivos = new ArrayList<FileInputStream>();
+		arquivos.add(simuladorDePDF());//adiciona o pdf na lista
+		arquivos.add(simuladorDePDF());
+		arquivos.add(simuladorDePDF());
+		arquivos.add(simuladorDePDF());
 		
-		//3ª parte
+		// 3ª parte
 		Multipart multipart = new MimeMultipart(); //junta as duas partes
 		multipart.addBodyPart(corpoEmail);
-		multipart.addBodyPart(anexoEmail);
-				
+		
+		int index = 1;
+		
+		for (FileInputStream fileInputStream : arquivos) {
+			
+			//2ª parte
+			MimeBodyPart anexoEmail = new MimeBodyPart();
+			
+			/*Onde é passado o simuladorDePDF(), deve ir o arquivo que se deseja, seja gravado no banco de dados ou outros*/
+			anexoEmail.setDataHandler(new DataHandler(new ByteArrayDataSource(fileInputStream, "application/pdf")));
+			anexoEmail.setFileName("anexoemail"+ index +".pdf");//muda o nome do arquivo
+			
+			//3ª parte			
+			multipart.addBodyPart(anexoEmail);
+			
+			index++;
+			
+		}
+		
 		message.setContent(multipart);
 		
 		Transport.send(message);
